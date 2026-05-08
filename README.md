@@ -14,65 +14,10 @@ Care Plus Challenge – SOA e WebServices Sprint 3
 
 ## Descrição do Projeto
 
-O **MAP (Meu Avatar Preventivo)** é uma API REST construída em **Spring Boot** que implementa um módulo de gamificação para o aplicativo da operadora de saúde **Care Plus**.
+O MAP é uma API REST construída em Spring Boot que implementa um módulo de gamificação para o aplicativo da operadora de saúde Care Plus.
 
-### Conceito Central
+Cada usuário possui um **avatar digital** que evolui conforme ele completa **missões de prevenção**, ações de autocuidado como registrar horas de sono, beber água, agendar check-ups e meditar. O avatar reflete **hábitos e comportamentos preventivos** do usuário.
 
-Cada usuário possui um **avatar digital** que evolui conforme ele completa **missões de prevenção**  ações de autocuidado como registrar horas de sono, beber água, agendar check-ups e meditar. O avatar reflete **hábitos e comportamentos preventivos** do usuário.
-
-
----
-
-## Arquitetura em Camadas
-
-```
-┌─────────────────────────────────────────────┐
-│              CLIENTE (HTTP)                  │
-│       Postman / Swagger UI / App             │
-└──────────────────┬──────────────────────────┘
-                   │ REST JSON
-┌──────────────────▼──────────────────────────┐
-│             CONTROLLER LAYER                 │
-│  UsuarioController  MissaoController         │
-│  AvatarController                            │
-└──────────────────┬──────────────────────────┘
-                   │
-┌──────────────────▼──────────────────────────┐
-│              SERVICE LAYER                   │
-│  UsuarioService  MissaoService               │
-│  AvatarService                               │
-└──────────────────┬──────────────────────────┘
-                   │
-┌──────────────────▼──────────────────────────┐
-│            REPOSITORY LAYER                  │
-│  UsuarioRepository  AvatarRepository         │
-│  MissaoRepository   MissaoCompletadaRepo     │
-└──────────────────┬──────────────────────────┘
-                   │ JPA / Hibernate
-┌──────────────────▼──────────────────────────┐
-│              DATABASE (H2 / PostgreSQL)      │
-│  usuarios  avatares  missoes                 │
-│  missoes_completadas                         │
-└─────────────────────────────────────────────┘
-```
-
----
-
-## Modelo de Entidades (ER)
-
-```
-USUARIOS ──────────── AVATARES
-   │  1                  1
-   │
-   │ 1
-   ├──────── MISSOES_COMPLETADAS ──────── MISSOES
-               (usuario_id, missao_id,        │
-                completada_em, observacao)     │
-                                         CATEGORIA (enum)
-                                         SAUDE | HIDRATACAO |
-                                         SONO  | EXERCICIO  |
-                                         BEM_ESTAR
-```
 
 ---
 
@@ -100,22 +45,30 @@ USUARIOS ──────────── AVATARES
 - Java 17+
 - Maven 3.8+
 
-### Passos
+
+1. Clone o repositório
 
 ```bash
-# 1. Clone o repositório
-git clone https://github.com/seu-usuario/map-api.git
-cd map-api
 
-# 2. Execute com Maven (usa H2 em memória por padrão)
+git clone https://github.com/larissaestella/SOA_e_WebServices-Sprint_3.git
+cd SOA_e_WebServices-Sprint_3
+
+```
+
+2. Execute com Maven (usa H2 em memória por padrão)
+
+```bash
 mvn spring-boot:run
 
-# 3. Acesse a documentação interativa
-# Swagger UI:  http://localhost:8080/swagger-ui.html
-# H2 Console:  http://localhost:8080/h2-console
-#   JDBC URL:  jdbc:h2:mem:mapdb
-#   User: sa   Password: (vazio)
 ```
+
+3. Acesse a documentação
+
+-  Swagger UI:  http://localhost:8080/swagger-ui.html
+- H2 Console:  http://localhost:8080/h2-console
+  - JDBC URL:  jdbc:h2:mem:mapdb
+  - User: sa   Password: (vazio)
+
 
 ---
 
@@ -154,165 +107,166 @@ mvn spring-boot:run
 
 ## Exemplos de Requisições e Respostas
 
-### Cadastrar Usuário
+### 1. Gestão de Usuários (`UsuarioController`)
 
-**Request**
+**Criar Usuário (POST)**
+
 ```http
 POST /api/v1/usuarios
 Content-Type: application/json
 
 {
-  "nome": "Ana Souza",
-  "email": "ana.souza@email.com",
-  "dataNascimento": "1990-05-15",
-  "nomeAvatar": "AnaFit"
+  "nome": "Carlos Almeida",
+  "email": "carlos@email.com",
+  "dataNascimento": "1995-08-22",
+  "nomeAvatar": "CarlosHero"
 }
+
 ```
 
-**Response 201 Created**
-```json
+**Listar Todos os Usuários (GET)**
+
+```http
+GET /api/v1/usuarios
+
+```
+
+**Buscar Usuário por ID (GET)**
+
+```http
+GET /api/v1/usuarios/1
+
+```
+
+**Atualizar Usuário (PUT)**
+*(Nota: O nome do avatar não muda aqui, apenas os dados pessoais)*
+
+```http
+PUT /api/v1/usuarios/1
+Content-Type: application/json
+
 {
-  "id": 1,
-  "nome": "Ana Souza",
-  "email": "ana.souza@email.com",
-  "dataNascimento": "1990-05-15",
-  "criadoEm": "2025-06-01T10:00:00"
+  "nome": "Carlos A. Editado",
+  "email": "carlos.novo@email.com",
+  "dataNascimento": "1995-08-22"
 }
+
+```
+
+**Excluir Usuário (DELETE)**
+*(Nota: Irá excluir em cascata o Avatar e o histórico de missões do usuário)*
+
+```http
+DELETE /api/v1/usuarios/1
+
 ```
 
 ---
 
-### Completar Missão
+### 2. Gestão de Missões (`MissaoController`)
 
-**Request**
+**Criar Missão (POST)**
+
+```http
+POST /api/v1/missoes
+Content-Type: application/json
+
+{
+  "titulo": "Yoga Matinal",
+  "descricao": "Realize 15 minutos de Yoga ao acordar.",
+  "categoria": "BEM_ESTAR",
+  "pontosRecompensa": 15,
+  "bonusSaude": 0,
+  "bonusHidratacao": 0,
+  "bonusSono": 0,
+  "bonusExercicio": 5,
+  "bonusBemEstar": 25
+}
+
+```
+
+**Listar Todas as Missões (GET)**
+
+```http
+GET /api/v1/missoes
+
+```
+
+**Listar Missões por Categoria (GET com Query Param)**
+
+```http
+GET /api/v1/missoes?categoria=SAUDE
+
+```
+
+**Buscar Missão por ID (GET)**
+
+```http
+GET /api/v1/missoes/1
+
+```
+
+**Atualizar Missão (PUT)**
+
+```http
+PUT /api/v1/missoes/1
+Content-Type: application/json
+
+{
+  "titulo": "Yoga Matinal Avançada",
+  "descricao": "Realize 30 minutos de Yoga ao acordar.",
+  "categoria": "BEM_ESTAR",
+  "pontosRecompensa": 30,
+  "bonusSaude": 0,
+  "bonusHidratacao": 0,
+  "bonusSono": 0,
+  "bonusExercicio": 10,
+  "bonusBemEstar": 40
+}
+
+```
+
+**Desativar Missão - Soft Delete (DELETE)**
+
+```http
+DELETE /api/v1/missoes/1
+
+```
+
+---
+
+### 3. Avatar e Gamificação (`AvatarController`)
+
+**Consultar Estado do Avatar (GET)**
+
+```http
+GET /api/v1/usuarios/1/avatar
+
+```
+
+**Completar uma Missão (POST)**
+*(Nota: O ID do usuário e o ID da missão vão na URL)*
+
 ```http
 POST /api/v1/usuarios/1/missoes/4/completar
 Content-Type: application/json
 
 {
-  "observacao": "Bebi exatamente 2,3 litros hoje!"
+  "observacao": "Sensação maravilhosa após finalizar a missão!"
 }
+
 ```
 
-**Response 200 OK**
-```json
-{
-  "id": 1,
-  "usuarioId": 1,
-  "missaoId": 4,
-  "tituloMissao": "2L de Água Hoje",
-  "observacao": "Bebi exatamente 2,3 litros hoje!",
-  "completadaEm": "2025-06-01T14:30:00",
-  "avatarAtualizado": {
-    "id": 1,
-    "usuarioId": 1,
-    "nomeAvatar": "AnaFit",
-    "nivel": 1,
-    "pontosTotal": 10,
-    "energia": 100,
-    "hidratacao": 100,
-    "focoMental": 100,
-    "atualizadoEm": "2025-06-01T14:30:00"
-  }
-}
-```
+**Consultar Estatísticas do Usuário (GET)**
 
----
-
-### Consultar Estatísticas
-
-**Request**
 ```http
 GET /api/v1/usuarios/1/estatisticas
-```
-
-**Response 200 OK**
-```json
-{
-  "totalMissoesCompletadas": 5,
-  "missoesPorCategoria": {
-    "HIDRATACAO": 2,
-    "EXERCICIO": 2,
-    "BEM_ESTAR": 1
-  },
-  "pontosTotal": 55,
-  "nivelAtual": 1,
-  "pontosParaProximoNivel": 145
-}
-```
-
----
-
-### Resposta de Erro (Validação)
-
-```json
-{
-  "timestamp": "2025-06-01T10:05:00",
-  "status": 400,
-  "erro": "Bad Request",
-  "mensagem": "Um ou mais campos são inválidos.",
-  "campos": {
-    "email": "Formato de e-mail inválido",
-    "nome": "O nome é obrigatório"
-  }
-}
-```
-
----
-
-## 🗂️ Estrutura do Projeto
 
 ```
-map-api/
-├── src/main/java/com/careplus/map/
-│   ├── MapApplication.java
-│   ├── config/
-│   │   └── OpenApiConfig.java
-│   ├── controller/
-│   │   ├── UsuarioController.java
-│   │   ├── MissaoController.java
-│   │   └── AvatarController.java
-│   ├── service/
-│   │   ├── UsuarioService.java
-│   │   ├── MissaoService.java
-│   │   └── AvatarService.java
-│   ├── repository/
-│   │   ├── UsuarioRepository.java
-│   │   ├── AvatarRepository.java
-│   │   ├── MissaoRepository.java
-│   │   └── MissaoCompletadaRepository.java
-│   ├── model/
-│   │   ├── entity/
-│   │   │   ├── Usuario.java
-│   │   │   ├── Avatar.java
-│   │   │   ├── Missao.java
-│   │   │   └── MissaoCompletada.java
-│   │   ├── dto/
-│   │   │   ├── UsuarioCadastroDTO.java
-│   │   │   ├── UsuarioAtualizacaoDTO.java
-│   │   │   ├── UsuarioResponseDTO.java
-│   │   │   ├── AvatarResponseDTO.java
-│   │   │   ├── MissaoCadastroDTO.java
-│   │   │   ├── MissaoResponseDTO.java
-│   │   │   ├── CompletarMissaoDTO.java
-│   │   │   └── MissaoCompletadaResponseDTO.java
-│   │   ├── vo/
-│   │   │   ├── RankingVO.java
-│   │   │   └── EstatisticasVO.java
-│   │   └── enums/
-│   │       └── CategoriaMissao.java
-│   └── exception/
-│       ├── RecursoNaoEncontradoException.java
-│       ├── RegraNegocioException.java
-│       └── GlobalExceptionHandler.java
-├── src/main/resources/
-│   ├── application.properties
-│   └── db/migration/
-│       ├── V1__create_tables.sql
-│       └── V2__seed_missoes.sql
-│   └── static/
-│       ├── index.html
-│       ├── script.js
-└── pom.xml
-```
 
+**Consultar Ranking Global (GET)**
+
+```http
+GET /api/v1/ranking
+
+```

@@ -131,7 +131,7 @@ O que você pode fazer pela interface:
 **Criar Usuário (POST)**
 
 ```http
-POST /api/v1/usuarios
+POST /api/v1/usuarios  
 Content-Type: application/json
 
 {
@@ -139,6 +139,19 @@ Content-Type: application/json
   "email": "carlos@email.com",
   "dataNascimento": "1995-08-22",
   "nomeAvatar": "CarlosHero"
+}
+
+```
+Response
+
+```http
+
+{
+    "id": 1,
+    "nome": "Carlos Almeida",
+    "email": "carlos@email.com",
+    "dataNascimento": "1995-08-22",
+    "criadoEm": "2026-05-08T20:37:09.7111332"
 }
 
 ```
@@ -158,7 +171,7 @@ GET /api/v1/usuarios/1
 ```
 
 **Atualizar Usuário (PUT)**
-*(Nota: O nome do avatar não muda aqui, apenas os dados pessoais)*
+*(O nome do avatar não muda aqui, apenas os dados pessoais)*
 
 ```http
 PUT /api/v1/usuarios/1
@@ -171,9 +184,21 @@ Content-Type: application/json
 }
 
 ```
+Response
+```http
+
+{
+    "id": 1,
+    "nome": "Carlos A. Editado",
+    "email": "carlos.novo@email.com",
+    "dataNascimento": "1995-08-22",
+    "criadoEm": "2026-05-08T20:37:09.711133"
+}
+```
+
 
 **Excluir Usuário (DELETE)**
-*(Nota: Irá excluir em cascata o Avatar e o histórico de missões do usuário)*
+*(Exclui em cascata o Avatar e o histórico de missões do usuário)*
 
 ```http
 DELETE /api/v1/usuarios/1
@@ -202,6 +227,23 @@ Content-Type: application/json
   "bonusBemEstar": 25
 }
 
+```
+Response
+```http
+
+{
+    "id": 15,
+    "titulo": "Yoga Matinal",
+    "descricao": "Realize 15 minutos de Yoga ao acordar.",
+    "categoria": "BEM_ESTAR",
+    "pontosRecompensa": 15,
+    "bonusSaude": 0,
+    "bonusHidratacao": 0,
+    "bonusSono": 0,
+    "bonusExercicio": 5,
+    "bonusBemEstar": 25,
+    "ativa": true
+}
 ```
 
 **Listar Todas as Missões (GET)**
@@ -261,10 +303,25 @@ DELETE /api/v1/missoes/1
 ```http
 GET /api/v1/usuarios/1/avatar
 
+Response
+
+{
+    "id": 1,
+    "usuarioId": 1,
+    "nomeAvatar": "CarlosHero",
+    "nivel": 1,
+    "pontosTotal": 0,
+    "saude": 0,
+    "hidratacao": 0,
+    "sono": 0,
+    "exercicio": 0,
+    "bemEstar": 0,
+    "atualizadoEm": "2026-05-08T20:41:34.515873"
+}
 ```
 
 **Completar uma Missão (POST)**
-*(Nota: O ID do usuário e o ID da missão vão na URL)*
+*(O ID do usuário e o ID da missão vão na URL)*
 
 ```http
 POST /api/v1/usuarios/1/missoes/4/completar
@@ -275,11 +332,48 @@ Content-Type: application/json
 }
 
 ```
+Response
+
+```http
+{
+    "id": 1,
+    "usuarioId": 2,
+    "missaoId": 4,
+    "tituloMissao": "2L de Água Hoje",
+    "observacao": "Sensação maravilhosa após finalizar a missão!",
+    "completadaEm": "2026-05-08T20:52:52.7907798",
+    "avatarAtualizado": {
+        "id": 2,
+        "usuarioId": 2,
+        "nomeAvatar": "CarlosHero",
+        "nivel": 1,
+        "pontosTotal": 10,
+        "saude": 0,
+        "hidratacao": 20,
+        "sono": 0,
+        "exercicio": 0,
+        "bemEstar": 0,
+        "atualizadoEm": "2026-05-08T20:41:34.515873"
+    }
+}
+```
 
 **Consultar Estatísticas do Usuário (GET)**
 
 ```http
 GET /api/v1/usuarios/1/estatisticas
+
+Response
+
+{
+    "totalMissoesCompletadas": 1,
+    "missoesPorCategoria": {
+        "HIDRATACAO": 1
+    },
+    "pontosTotal": 10,
+    "nivelAtual": 1,
+    "pontosParaProximoNivel": 190
+}
 
 ```
 
@@ -287,5 +381,19 @@ GET /api/v1/usuarios/1/estatisticas
 
 ```http
 GET /api/v1/ranking
+
+Response
+
+[
+    {
+        "posicao": 1,
+        "usuarioId": 2,
+        "nomeUsuario": "Carlos Almeida",
+        "nomeAvatar": "CarlosHero",
+        "nivel": 1,
+        "pontosTotal": 10,
+        "totalMissoesCompletadas": 1
+    }
+]
 
 ```

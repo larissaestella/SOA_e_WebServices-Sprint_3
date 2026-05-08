@@ -72,6 +72,24 @@ mvn spring-boot:run
 
 ---
 
+### Interface (Web Console)
+
+Para demonstrar o consumo de dos serviços desenvolvidos construímos um Web Console interativo (Front-end em HTML/JS).
+
+**Como testar:**
+
+1. Certifique-se de que a API Spring Boot está rodando (`localhost:8080`).
+2. Localize o arquivo `index.html` (e o `script.js`) disponibilizado junto com o projeto.
+3. Dê um duplo clique no `index.html` para abri-lo no seu navegador de preferência.
+
+O que você pode fazer pela interface:
+
+* **CRUD Completo:** Criar, editar, listar e excluir Usuários e Missões, consumindo diretamente os endpoints REST (`POST`, `GET`, `PUT`, `DELETE`).
+* **Gamificação na Prática:** Na aba "Meu Avatar", você pode simular a conclusão de uma missão e visualizar em tempo real a lógica de negócio funcionando de pontos e a progressão de Nível.
+* **Ranking e Estatísticas:** Na aba de Ranking, o sistema consome os endpoints de leitura consolidada para exibir o Top Global de usuários e as estatísticas individuais (distribuição de missões concluídas por categoria e pontos faltantes para o próximo nível).
+
+---
+
 ## Endpoints
 
 ### Usuários — `/api/v1/usuarios`

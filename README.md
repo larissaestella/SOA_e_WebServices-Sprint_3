@@ -52,6 +52,7 @@ Cada usuário possui um **avatar digital** que evolui conforme ele completa **mi
 
 git clone https://github.com/larissaestella/SOA_e_WebServices-Sprint_3.git
 cd SOA_e_WebServices-Sprint_3
+idea .
 
 ```
 
